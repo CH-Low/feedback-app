@@ -21,7 +21,7 @@ function Feedbackitem({item}) {
                 <FaEdit color="purple"/>
             </button>
             <div className="text-display">{text}</div>
-            <div className="text-display">renders: {renders.current++}</div>
+            <div className="text-display">ratings: {renders.current++}</div>
         </Card>
     )
 }
