@@ -26,7 +26,7 @@
     "eject": "react-scripts eject",
     "server": "json-server --watch db.json --port 5000",
     "dev": "concurrently \"npm run server\" \"npm start\"",
-    "prod": "concurrently \"npm run server\" \"npm build\""
+    "prod": "concurrently \"npm run server\" \"npm run build\""
   },
   "eslintConfig": {
     "extends": [
