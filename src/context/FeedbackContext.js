@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useRef} from "react";
 
 const FeedbackContext = createContext()
 
@@ -7,17 +7,25 @@ export const FeedbackProvider = ({ children }) => {
     const [feedback, setFeedback] = useState([]);
     const [feedbackEdit, setFeedbackEdit] = useState({ item: {}, edit: false });
 
+    const abortControllerRef = useRef(new AbortController())
     useEffect(() => {
+        abortControllerRef.current?.abort();
+        abortControllerRef.current = new AbortController();
+        
+        const url = new URL('/feedback', document.baseURI)
+        url.searchParams.set('_sort', 'id')
+        url.searchParams.set('_order', 'desc')
+
+        const fetchFeedback = async () => {
+            const response = await fetch(url, {signal:abortControllerRef.signal})
+            const data = await response.json()
+            setFeedback(data)
+            setIsLoading(false)
+        }
         fetchFeedback()
-    }, [])
+    }, [abortControllerRef])
 
-    const fetchFeedback = async () => {
-        const response = await fetch(`/feedback?_sort=id&_order=desc`)
-        const data = await response.json()
 
-        setFeedback(data)
-        setIsLoading(false)
-    }
 
     const addFeedback = async (newfeedback) => {
         const response = await fetch(`/feedback`, {
