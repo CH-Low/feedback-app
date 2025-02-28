@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useRef} from "react";
+import { createContext, useState, useEffect} from "react";
 
 const FeedbackContext = createContext()
 
@@ -7,23 +7,29 @@ export const FeedbackProvider = ({ children }) => {
     const [feedback, setFeedback] = useState([]);
     const [feedbackEdit, setFeedbackEdit] = useState({ item: {}, edit: false });
 
-    const abortControllerRef = useRef(new AbortController())
     useEffect(() => {
-        abortControllerRef.current?.abort();
-        abortControllerRef.current = new AbortController();
-        
-        const url = new URL('/feedback', document.baseURI)
-        url.searchParams.set('_sort', 'id')
-        url.searchParams.set('_order', 'desc')
+        const abortController = new AbortController();
+
+        const url = new URL('/feedback', document.baseURI);
+        url.searchParams.set('_sort', 'id');
+        url.searchParams.set('_order', 'desc');
 
         const fetchFeedback = async () => {
-            const response = await fetch(url, {signal:abortControllerRef.signal})
-            const data = await response.json()
-            setFeedback(data)
-            setIsLoading(false)
+            try {
+                const response = await fetch(url, { signal: abortController.signal });
+                const data = await response.json();
+                setFeedback(data);
+                setIsLoading(false);
+                console.log('Fetch successfully');
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Fetch aborted');
+                }
+            }
         }
-        fetchFeedback()
-    }, [abortControllerRef])
+        fetchFeedback();
+        return () => abortController.abort(); // Cleanup function
+    }, [])
 
 
 
